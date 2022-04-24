@@ -1,13 +1,19 @@
-export default class Warndorff {
+import KnightsTourAlgorithm from "./algorithm";
+
+export default class Warndorff implements KnightsTourAlgorithm{
   /** 
    * Calls function f for the different possible move offsets 
    * @param f a function of signature `var (int relativeOffsetX, int relativeOffsetY, var user_data)` 
    * @returns void 
    */ 
-  static iteratePossibleMoves(f:Function) {
-    let data;
+  iteratePossibleMoves(f: (
+    xOffset:number,
+    yOffset:number,
+    n:any) => any
+  ) {
+    let data : any = [];
   
-	/// Define the set of moves by an offset of x and y coordinates
+	  // Define the set of moves by an offset of x and y coordinates
     const moves = [
       [-2, 1],
       [-2, -1],
@@ -19,8 +25,8 @@ export default class Warndorff {
       [2, -1],
     ];
   
-    for (var i = 0; i < 8; i++) {
-      data = f(moves[i][0], moves[i][1], data); /// Call the users function for the different possible moves 
+    for (let i = 0; i < 8; i++) {
+      data = f(moves[i][0], moves[i][1], data); // Call the user's function for the different possible moves 
     }
   
     return data;
@@ -33,10 +39,10 @@ export default class Warndorff {
    * @param y the y coordinate of the position 
    * @returns bool true if it's possible to move to the specified position, otherwise false 
    */
-  static canMoveTo(board:[[]], x:number, y:number) {
+  canMoveTo(board:[[]], x:number, y:number) : boolean {
   
-    var boardWidth = board.length;
-    var boardHeight = board[0].length;
+    let boardWidth = board.length;
+    let boardHeight = board[0].length;
   
     if (!(x < boardWidth && x >= 0 && y < boardHeight && y >= 0)) {
       return false;
@@ -56,45 +62,35 @@ export default class Warndorff {
    * @param y the y coordinate of the position 
    * @returns the degree from a particular x and y coordinate
    */
-  static getDegree(board:[[]], x:number, y:number):number {
-    let isMovePossible = (xOffset:number, yOffset:number, n:number) => {
-      if (n == null) {
-        n = 0;
-      }
+  getDegree(board:[[]], x:number, y:number):number {
+    let isMovePossible = (xOffset:number, yOffset:number, n:number) : number => {
+      n = n ?? 0;
   
-      if (this.canMoveTo(board, x, y)) {
-        return n + 1;
-      } else {
-        return n;
-      }
+      return this.canMoveTo(board, x, y) ? n + 1 : n;
     };
-  
-    var n = this.iteratePossibleMoves(isMovePossible);
-  
-    return n;
+    
+    return this.iteratePossibleMoves(isMovePossible);
   }
   
-  static getDegreeTable(board:[[]], x:number, y:number) {
-    let createDegreeTable = (xOffset:number, yOffset:number, n:Array<[number, number, number]>) => {
+  getDegreeTable(board:[[]], x:number, y:number) {
+    let createDegreeTable = (xOffset:number, yOffset:number, n:Array<[number, number, number]>): Array<[number, number, number]> => {
       n = n ? n : [];
-      if (Warndorff.canMoveTo(board, x + xOffset, y + yOffset)) {
-        n.push([xOffset, yOffset, Warndorff.getDegree(board, x + xOffset, y + yOffset)]);
+      if (this.canMoveTo(board, x + xOffset, y + yOffset)) {
+        n.push([xOffset, yOffset, this.getDegree(board, x + xOffset, y + yOffset)]);
       }
       return n;
     };
   
-    var degreeTable = Warndorff.iteratePossibleMoves(createDegreeTable);
-  
-    return degreeTable;
+    return this.iteratePossibleMoves(createDegreeTable);
   }
   
-  static getNextMove(board:[[]], x:number, y:number) {
-    var minDegree = 0;
-    var nextMoveRelative = [0, 0];
+  getNextMove(board:[[]], x:number, y:number) {
+    let minDegree = 0;
+    let nextMoveRelative = [0, 0];
   
-    var degreesTable = Warndorff.getDegreeTable(board, x, y);
+    let degreesTable = this.getDegreeTable(board, x, y);
   
-    for (var i = 0; i < degreesTable.length; i++) {
+    for (let i = 0; i < degreesTable.length; i++) {
       if (degreesTable[0][2] > minDegree) {
         nextMoveRelative = [degreesTable[0][0], degreesTable[0][1]];
         minDegree = degreesTable[0][2];
@@ -104,15 +100,15 @@ export default class Warndorff {
     return nextMoveRelative;
   }
   
-  static getWarnsdorffsPath(n:number, startingX:number, startingY:number) {
-    var board = Array.from(Array(n), () => new Array(n).fill(0)); /// Initializes a board with values elements of value 0, indicating unvisited.
+  getPath(n:number, startingX:number, startingY:number) : any {
+    let board = Array.from(Array(n), () => new Array(n).fill(0)); /// Initializes a board with values elements of value 0, indicating unvisited.
   
-    var currentX = startingX;
-    var currentY = startingY;
+    let currentX = startingX;
+    let currentY = startingY;
   
-    var trace = [];
+    let trace = [];
   
-    for (var i = 0; i < n * n - 1; i++) {
+    for (let i = 0; i < n * n - 1; i++) {
       board[currentX][currentY] = 1;
       trace.push([currentX, currentY]);
   
