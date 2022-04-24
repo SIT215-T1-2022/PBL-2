@@ -56,7 +56,7 @@ export default class Warndorff {
   
   static getDegreeTable(board:[[]], x:number, y:number) {
     let createDegreeTable = (xOffset:number, yOffset:number, n:[[number, number, number]]) => {
-      n = [...n]
+      n.push();
       if (Warndorff.canMoveTo(board, x + xOffset, y + yOffset)) {
         n.push([xOffset, yOffset, Warndorff.getDegree(board, x + xOffset, y + yOffset)]);
       }
