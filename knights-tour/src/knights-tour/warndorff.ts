@@ -1,7 +1,13 @@
 export default class Warndorff {
+  /** 
+   * Calls function f for the different possible move offsets 
+   * @param f a function of signature `var (int relativeOffsetX, int relativeOffsetY, var user_data)` 
+   * @returns void 
+   */ 
   static iteratePossibleMoves(f:Function) {
     let data;
   
+	/// Define the set of moves by an offset of x and y coordinates
     const moves = [
       [-2, 1],
       [-2, -1],
@@ -14,12 +20,19 @@ export default class Warndorff {
     ];
   
     for (var i = 0; i < 8; i++) {
-      data = f(moves[i][0], moves[i][1], data);
+      data = f(moves[i][0], moves[i][1], data); /// Call the users function for the different possible moves 
     }
   
     return data;
   }
   
+  /** 
+   * Checks if the position at x, y is available and unvisited, indicating that it's possible to move there. 
+   * @param board to check 
+   * @param x the x coordinate of the position 
+   * @param y the y coordinate of the position 
+   * @returns bool true if it's possible to move to the specified position, otherwise false 
+   */
   static canMoveTo(board:[[]], x:number, y:number) {
   
     var boardWidth = board.length;
@@ -36,6 +49,13 @@ export default class Warndorff {
     return false;
   }
   
+  /** 
+   * Gets the number of legal moves from a particular x and y coordinate
+   * @param board to check 
+   * @param x the x coordinate of the position 
+   * @param y the y coordinate of the position 
+   * @returns the degree from a particular x and y coordinate
+   */
   static getDegree(board:[[]], x:number, y:number):number {
     let isMovePossible = (xOffset:number, yOffset:number, n:number) => {
       if (n == null) {
@@ -85,7 +105,7 @@ export default class Warndorff {
   }
   
   static getWarnsdorffsPath(n:number, startingX:number, startingY:number) {
-    var board = Array.from(Array(n), () => new Array(n).fill(0));
+    var board = Array.from(Array(n), () => new Array(n).fill(0)); /// Initializes a board with values elements of value 0, indicating unvisited.
   
     var currentX = startingX;
     var currentY = startingY;
