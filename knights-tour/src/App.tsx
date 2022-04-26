@@ -12,10 +12,14 @@ function App() {
     //   console.log(i + ": { x: " + trace[i][0] + ", y: " + trace[i][1] + "}");
     // }
     
-    // Driver code
-    
     // Function Call
-    const backtrackKT = new Backtrack();
+    const N = 7;
+    const x = 4;
+    const y = 0;
+    // const N = 7;
+    // const x = 1;
+    // const y = 0;
+    const backtrackKT = new Backtrack(N, x, y);
     backtrackKT.solveKT();
   }, []);
   return (

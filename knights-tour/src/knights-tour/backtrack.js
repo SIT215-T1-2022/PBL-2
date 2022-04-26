@@ -1,7 +1,13 @@
 export default class Backtrack{
   
   // Javascript program for Knight Tour problem
-  N = 8;
+  iterations = 0;
+  // Constructor
+  constructor(N, x, y){
+    this.N = N;
+    this.startX = x;
+    this.startY = y;
+  }
   
   // A utility function to check if i,j are
   // valid indexes for N*N chessboard
@@ -30,7 +36,7 @@ export default class Backtrack{
   // feasible solutions. 
   solveKT()
   {
-    let sol = new Array(8);
+    let sol = new Array(this.N);
     for(var i = 0; i < sol.length; i++)
     {
       sol[i] = new Array(2);
@@ -52,7 +58,7 @@ export default class Backtrack{
 
     // Start from 0,0 and explore all tours using
     // solveKTUtil()
-    if (!this.solveKTUtil(0, 0, 1, sol, xMove, yMove))
+    if (!this.solveKTUtil(this.startX, this.startY, 1, sol, xMove, yMove))
     {
       document.write("Solution does not exist");
       return false;
@@ -67,27 +73,30 @@ export default class Backtrack{
   // Tour problem
   solveKTUtil(x, y, movei, sol, xMove, yMove)
   {
-      let k, next_x, next_y;
-      if (movei === this.N * this.N)
-          return true;
-  
-      // Try all next moves from the
-      // current coordinate x, y
-      for(k = 0; k < 8; k++)
-      {
-          next_x = x + xMove[k];
-          next_y = y + yMove[k];
-          
-          if (this.isSafe(next_x, next_y, sol))
-          {
-              sol[next_x][next_y] = movei;
-              if (this.solveKTUtil(next_x, next_y, movei + 1,
-                              sol, xMove, yMove))
-                  return true;
-              else
-                  sol[next_x][next_y] = -1; // backtracking
-          }
-      }
+    this.iterations++;
+    if(this.iterations > 10e8){
+      console.error("Too many iterations");
       return false;
+    }
+    let k, next_x, next_y;
+    if (movei === this.N * this.N) return true;
+
+    // Try all next moves from the
+    // current coordinate x, y
+    for(k = 0; k < 8; k++)
+    {
+      next_x = x + xMove[k];
+      next_y = y + yMove[k];
+      
+      if (this.isSafe(next_x, next_y, sol))
+      {
+        sol[next_x][next_y] = movei;
+        if (this.solveKTUtil(next_x, next_y, movei + 1, sol, xMove, yMove))
+          return true;
+        else
+          sol[next_x][next_y] = -1; // backtracking
+      }
+    }
+    return false;
   }
 }
