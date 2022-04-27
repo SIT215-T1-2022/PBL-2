@@ -57,10 +57,10 @@ export default class Warndorff implements KnightsTourAlgorithm{
   
   /** 
    * Gets the number of legal moves from a particular x and y coordinate
-   * @param board to check 
+   * @param board the board to check
    * @param x the x coordinate of the position 
    * @param y the y coordinate of the position 
-   * @returns the degree from a particular x and y coordinate
+   * @returns the degree / number of legal moves from a particular x and y coordinate
    */
   getDegree(board:[[]], x:number, y:number):number {
     let isMovePossible = (xOffset:number, yOffset:number, n:number) : number => {
@@ -72,8 +72,15 @@ export default class Warndorff implements KnightsTourAlgorithm{
     return this.iteratePossibleMoves(isMovePossible);
   } 
   
-  getDegreeTable(board:[[]], x:number, y:number) {
-    let createDegreeTable = (xOffset:number, yOffset:number, n:Array<[number, number, number]>): Array<[number, number, number]> => {
+  /** 
+   * Gets the number of legal moves of the number of legal moves from a particular x and y coordinate
+   * @param board the board to check
+   * @param x the x coordinate of the position to check
+   * @param y the y coordinate of the position to check
+   * @returns a list of the degree from the legal moves of the legal moves from a particular x and y coordinate
+   */
+  getDegreesOfPossibleMoves(board:[[]], x:number, y:number) {
+    let createDegreesOfPossibleMoves = (xOffset:number, yOffset:number, n:Array<[number, number, number]>): Array<[number, number, number]> => {
       n = n ? n : [];
       if (this.canMoveTo(board, x + xOffset, y + yOffset)) {
         n.push([xOffset, yOffset, this.getDegree(board, x + xOffset, y + yOffset)]);  
@@ -81,27 +88,42 @@ export default class Warndorff implements KnightsTourAlgorithm{
       return n;
     }; 
   
-    return this.iteratePossibleMoves(createDegreeTable);
+    return this.iteratePossibleMoves(createDegreesOfPossibleMoves);
   }
   
-  getNextMove(board:[[]], x:number, y:number) {
-    let degreesTable = this.getDegreeTable(board, x, y);
-    if (degreesTable.length == 0) {
+  /** 
+   * Gets the suggested next move from a particular position
+   * @param board the board to consider 
+   * @param x the x coordinate of the position to check
+   * @param y the y coordinate of the position to check
+   * @returns the relative suggest move to make
+   */
+  getNextMoveRelative(board:[[]], x:number, y:number) {
+    let degreesOfPossibleMoves = this.getDegreesOfPossibleMoves(board, x, y);
+    if (degreesOfPossibleMoves.length === 0) {
       return [0, 0]; 
     }
 
-    let minDegree = degreesTable[0][2];
-    let nextMoveRelative = [degreesTable[0][0], degreesTable[0][1]];
+    console.log(degreesOfPossibleMoves);
 
-    for (let i = 1; i < degreesTable.length; i++) {
-      if (degreesTable[i][2] < minDegree) { 
-        nextMoveRelative = [degreesTable[i][0], degreesTable[i][1]];
-        minDegree = degreesTable[i][2]; 
+    let minDegree = degreesOfPossibleMoves[0][2];
+    let nextMoveRelative = [degreesOfPossibleMoves[0][0], degreesOfPossibleMoves[0][1]];
+
+    for (let i = 1; i < degreesOfPossibleMoves.length; i++) {
+      if (degreesOfPossibleMoves[i][2] < minDegree) { 
+        nextMoveRelative = [degreesOfPossibleMoves[i][0], degreesOfPossibleMoves[i][1]];
+        minDegree = degreesOfPossibleMoves[i][2]; 
       }
     }
     return nextMoveRelative;
   }
-  
+  /** 
+   * Gets the knights tour path using the warndorfs algorithm
+   * @param n the n as in n x n board to create the path from
+   * @param startingX the x coordinate to start generating the warndorfs path to
+   * @param startingY the y coordinate to start generating the warndorfs path to
+   * @returns the knights tour path if a solution has been found, otherwise an attempt at the path that ends before reaching the start again
+   */
   getPath(n:number, startingX:number, startingY:number) : any {
     let board = Array.from(Array(n), () => new Array(n).fill(0)); /// Initializes a board with values elements of value 0, indicating unvisited.
   
@@ -110,19 +132,18 @@ export default class Warndorff implements KnightsTourAlgorithm{
   
     let trace = [];
   
-    for (let i = 0; i < n * n - 1; i++) {
+    for (let i = 0; i < n * n; i++) {   
       board[currentX][currentY] = 1;
       trace.push([currentX, currentY]);
   
-      let nextMove = this.getNextMove(board as [[]], currentX, currentY);
-      if (nextMove[0] === 0 && nextMove[1] === 0) { 
+      let nextMoveRelative = this.getNextMoveRelative(board as [[]], currentX, currentY);
+      if (nextMoveRelative[0] === 0 && nextMoveRelative[1] === 0) { 
         break;
-      }
+      } 
   
-      currentX += nextMove[0];
-      currentY += nextMove[1];
+      currentX += nextMoveRelative[0];
+      currentY += nextMoveRelative[1];
     }
-  
     return trace;
   }  
 }
