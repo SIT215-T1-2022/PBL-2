@@ -138,6 +138,12 @@ export default class Warndorff implements KnightsTourAlgorithm{
     let minDegree = degreesOfPossibleMoves[0][2];
     let nextMoveRelative = [degreesOfPossibleMoves[0][0], degreesOfPossibleMoves[0][1]];
     for (let i = 1; i < degreesOfPossibleMoves.length; i++) {
+      if (degreesOfPossibleMoves[i][2] == minDegree && minDegree != 0) {
+        if (this.getDegree(board, nextMoveRelative[0], nextMoveRelative[1]) > this.getDegree(board, degreesOfPossibleMoves[i][0], degreesOfPossibleMoves[i][1])) {
+          nextMoveRelative[0] = degreesOfPossibleMoves[i][0];
+          nextMoveRelative[1] = degreesOfPossibleMoves[i][1];
+        }
+      }
       if (degreesOfPossibleMoves[i][2] < minDegree) { 
         nextMoveRelative = [degreesOfPossibleMoves[i][0], degreesOfPossibleMoves[i][1]];
         minDegree = degreesOfPossibleMoves[i][2]; 
