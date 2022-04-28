@@ -68,14 +68,15 @@ export default class Warndorff implements KnightsTourAlgorithm{
    * @returns bool true if it's possible to move to the specified position, otherwise false 
    */
   canMoveTo(board:[[]], x:number, y:number) : boolean {
-  
     let boardWidth = board.length;
     let boardHeight = board[0].length;
   
+    // check if the x and y is in the bounds of the board
     if (!(x < boardWidth && x >= 0 && y < boardHeight && y >= 0)) {
       return false;
     }
   
+    // check if the move is available. 0 means the position is not taken.
     if (board[x][y] === 0) {
       return true;
     }
@@ -85,10 +86,10 @@ export default class Warndorff implements KnightsTourAlgorithm{
   
   /** 
    * Gets the number of legal moves from a particular x and y coordinate
-   * @param board to check 
+   * @param board the board to check
    * @param x the x coordinate of the position 
    * @param y the y coordinate of the position 
-   * @returns the degree from a particular x and y coordinate
+   * @returns the degree / number of legal moves from a particular x and y coordinate
    */
   getDegree(board:[[]], x:number, y:number):number {
     let isMovePossible = (xOffset:number, yOffset:number, n:number) : number => {
@@ -100,36 +101,57 @@ export default class Warndorff implements KnightsTourAlgorithm{
     return this.iteratePossibleMoves(isMovePossible);
   } 
   
-  getDegreeTable(board:[[]], x:number, y:number) {
-    let createDegreeTable = (xOffset:number, yOffset:number, n:Array<[number, number, number]>): Array<[number, number, number]> => {
+  /** 
+   * Gets the number of legal moves from legal moves from a particular x and y coordinate
+   * @param board the board to check
+   * @param x the x coordinate of the position to check
+   * @param y the y coordinate of the position to check
+   * @returns a list of the number of legal moves from legal moves from a particular x and y coordinate
+   */
+  getDegreesOfPossibleMoves(board:[[]], x:number, y:number) {
+    let createDegreesOfPossibleMoves = (xOffset:number, yOffset:number, n:Array<[number, number, number]>): Array<[number, number, number]> => {
       n = n ? n : [];
+      // if the move is legal, get the amount of possible moves from that position then add it to the list
       if (this.canMoveTo(board, x + xOffset, y + yOffset)) {
         n.push([xOffset, yOffset, this.getDegree(board, x + xOffset, y + yOffset)]);  
       }
       return n;
     }; 
   
-    return this.iteratePossibleMoves(createDegreeTable);
+    return this.iteratePossibleMoves(createDegreesOfPossibleMoves);
   }
   
-  getNextMove(board:[[]], x:number, y:number) {
-    let degreesTable = this.getDegreeTable(board, x, y);
-    if (degreesTable.length === 0) {
+  /** 
+   * Gets the suggested next move from a particular position
+   * @param board the board to consider 
+   * @param x the x coordinate of the position to check
+   * @param y the y coordinate of the position to check
+   * @returns the relative suggested move to make
+   */
+  getNextMoveRelative(board:[[]], x:number, y:number) {
+    let degreesOfPossibleMoves = this.getDegreesOfPossibleMoves(board, x, y);
+    if (degreesOfPossibleMoves.length === 0) {
       return [0, 0]; 
     }
 
-    let minDegree = degreesTable[0][2];
-    let nextMoveRelative = [degreesTable[0][0], degreesTable[0][1]];
-
-    for (let i = 1; i < degreesTable.length; i++) {
-      if (degreesTable[i][2] < minDegree) { 
-        nextMoveRelative = [degreesTable[i][0], degreesTable[i][1]];
-        minDegree = degreesTable[i][2]; 
+    // search for the legal move with the least subsequent moves
+    let minDegree = degreesOfPossibleMoves[0][2];
+    let nextMoveRelative = [degreesOfPossibleMoves[0][0], degreesOfPossibleMoves[0][1]];
+    for (let i = 1; i < degreesOfPossibleMoves.length; i++) {
+      if (degreesOfPossibleMoves[i][2] < minDegree) { 
+        nextMoveRelative = [degreesOfPossibleMoves[i][0], degreesOfPossibleMoves[i][1]];
+        minDegree = degreesOfPossibleMoves[i][2]; 
       }
     }
-    return nextMoveRelative;
+    return nextMoveRelative; 
   }
-  
+  /** 
+   * Gets the knights tour path using the warndorfs algorithm
+   * @param n the n as in n x n board to create the path from
+   * @param startingX the x coordinate to start generating the warndorfs path to
+   * @param startingY the y coordinate to start generating the warndorfs path to
+   * @returns the knights tour path if a solution has been found, otherwise an attempt at the path that ends before reaching the start again
+   */
   getPath(n:number, startingX:number, startingY:number) : any {
     this.N = n;
     
@@ -138,21 +160,22 @@ export default class Warndorff implements KnightsTourAlgorithm{
     let currentX = startingX;
     let currentY = startingY;
   
-    let trace = [];
-  
-    for (let i = 0; i < n * n - 1; i++) {
+    // the potential knights tour
+    let tour = [];
+   
+    // loop a maximum of n * n times; it should generally be safe to rely on the break below, but this is to be extra cautious if something goes wrong
+    for (let i = 0; i < n * n; i++) {   
       board[currentX][currentY] = 1;
-      trace.push([currentX, currentY]);
+      tour.push([currentX, currentY]);
   
-      let nextMove = this.getNextMove(board as [[]], currentX, currentY);
-      if (nextMove[0] === 0 && nextMove[1] === 0) { 
+      let nextMoveRelative = this.getNextMoveRelative(board as [[]], currentX, currentY);
+      if (nextMoveRelative[0] === 0 && nextMoveRelative[1] === 0) { 
         break;
-      }
+      } 
   
-      currentX += nextMove[0];
-      currentY += nextMove[1];
+      currentX += nextMoveRelative[0];
+      currentY += nextMoveRelative[1];
     }
-  
-    return trace;
+    return tour;
   }  
 }
