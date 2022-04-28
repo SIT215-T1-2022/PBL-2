@@ -1,6 +1,34 @@
 import KnightsTourAlgorithm from "./algorithm";
 
 export default class Warndorff implements KnightsTourAlgorithm{
+  output: string = '';
+  sol: Array<[number, number]> = [];
+  N: number = 0;
+  
+  run(){
+    const trace = this.getPath(15, 2, 4);
+    
+    for(var i = 0; i < this.N; i++)
+      this.sol[i] = [0, this.N*this.N-1];
+    
+    for (let i = 0; i < trace.length; i++)
+    {
+      const [x, y] = trace[i];
+      this.sol[x][y] = i;
+    }
+  }
+  
+  printSolution(){
+    let out = `Output:\n`;
+    for(let x = 0; x < this.N; x++){
+      for(let y = 0; y < this.N; y++){
+        out = out + this.sol[x][y]+ "\t";
+      }
+      out = out + "\n";
+    }
+    return out;
+  }
+  
   /** 
    * Calls function f for the different possible move offsets 
    * @param f a function of signature `var (int relativeOffsetX, int relativeOffsetY, var user_data)` 
@@ -86,7 +114,7 @@ export default class Warndorff implements KnightsTourAlgorithm{
   
   getNextMove(board:[[]], x:number, y:number) {
     let degreesTable = this.getDegreeTable(board, x, y);
-    if (degreesTable.length == 0) {
+    if (degreesTable.length === 0) {
       return [0, 0]; 
     }
 
@@ -103,6 +131,8 @@ export default class Warndorff implements KnightsTourAlgorithm{
   }
   
   getPath(n:number, startingX:number, startingY:number) : any {
+    this.N = n;
+    
     let board = Array.from(Array(n), () => new Array(n).fill(0)); /// Initializes a board with values elements of value 0, indicating unvisited.
   
     let currentX = startingX;

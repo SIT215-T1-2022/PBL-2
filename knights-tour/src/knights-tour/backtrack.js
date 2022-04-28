@@ -1,4 +1,6 @@
-export default class Backtrack{
+
+// Source: https://www.geeksforgeeks.org/the-knights-tour-problem-backtracking-1/
+export default class Backtrack {
   
   // Javascript program for Knight Tour problem
   iterations = 0;
@@ -18,12 +20,14 @@ export default class Backtrack{
   // A utility function to print solution
   // matrix sol[N][N]
   printSolution(sol){
+    let output = `Output:\n`;
     for(let x = 0; x < this.N; x++){
-      for(let y = 0; y < this.N; y++)
-        document.write(sol[x][y] + " ");
-      
-      document.write("<br/>");
+      for(let y = 0; y < this.N; y++){
+        output = output + (sol[x][y].toString()) + "\t";
+      }
+      output = output + "\n";
     }
+    return output;
   }
   
   // This function solves the Knight Tour problem
@@ -34,14 +38,13 @@ export default class Backtrack{
   // Please note that there may be more than one
   // solutions, this function prints one of the
   // feasible solutions. 
-  solveKT()
+  run()
   {
+    console.warn("Solve!");
     let sol = new Array(this.N);
     for(var i = 0; i < sol.length; i++)
-    {
       sol[i] = new Array(2);
-    }
-
+    
     // Initialization of solution matrix
     for(let x = 0; x < this.N; x++)
       for(let y = 0; y < this.N; y++)
@@ -54,19 +57,17 @@ export default class Backtrack{
     let yMove = [ 1, 2, 2, 1, -1, -2, -2, -1 ];
 
     // Since the Knight is initially at the first block
-    sol[0][0] = 0;
+    sol[this.startX][this.startY] = 0;
 
     // Start from 0,0 and explore all tours using
     // solveKTUtil()
     if (!this.solveKTUtil(this.startX, this.startY, 1, sol, xMove, yMove))
     {
-      document.write("Solution does not exist");
+      console.log("Solution does not exist");
       return false;
     }
-    else
-      this.printSolution(sol);
-
-    return true;
+    
+    return sol;
   }
   
   // A recursive utility function to solve Knight
@@ -74,7 +75,7 @@ export default class Backtrack{
   solveKTUtil(x, y, movei, sol, xMove, yMove)
   {
     this.iterations++;
-    if(this.iterations > 10e8){
+    if(this.iterations > 50e8){
       console.error("Too many iterations");
       return false;
     }
