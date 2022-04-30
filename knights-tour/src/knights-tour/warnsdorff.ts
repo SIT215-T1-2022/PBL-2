@@ -180,8 +180,9 @@ export default class Warnsdorff implements KnightsTourAlgorithm{
   
     // the potential knights tour
     let tour = [];
-   
-    // loop a maximum of n * n times; it should generally be safe to rely on the break below, but this is to be extra cautious if something goes wrong
+  
+    // loop a maximum of n * n times; it should generally be safe to rely on the
+    // break below, but this is to be extra cautious if something goes wrong
     for (let i = 0; i < n * n; i++) {   
       board[currentX][currentY] = 1;
       tour.push([currentX, currentY]);
